@@ -247,7 +247,7 @@ function App() {
             },
           }}
           columnVisibilityModel={{
-            // 'parentId': false,
+            'parentId': false,
           }}
           onRowClick={handleEvent}
           rows={tasks}
