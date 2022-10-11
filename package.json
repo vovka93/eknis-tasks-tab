@@ -5,11 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build  --base=/api_eknis/",
+    "build": "vite build  --base=/tasks-tab/",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@2bad/bitrix": "^2.4.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@mui/material": "^5.10.8",
