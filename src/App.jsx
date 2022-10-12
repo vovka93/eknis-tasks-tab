@@ -59,7 +59,7 @@ const columns = [
       return params.value;
     },
     valueGetter: (params) => {
-      return (params.row['parentId'] != params.row['id'] ? '>  ' : '') + params.row['title'];
+      return (params.row['parentId'] > 0 ? '>  ' : '') + params.row['title'];
     }
   },
   {
@@ -247,7 +247,7 @@ function App() {
             },
           }}
           columnVisibilityModel={{
-            // 'parentId': false,
+            'parentId': false,
           }}
           onRowClick={handleEvent}
           rows={tasks}
