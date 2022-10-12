@@ -73,7 +73,7 @@ const columns = [
   },
   {
     field: 'deadline',
-    headerName: 'Крайній срок',
+    headerName: 'Крайній термін',
     sortable: false,
     width: 160,
     valueFormatter: ({ value }) =>
