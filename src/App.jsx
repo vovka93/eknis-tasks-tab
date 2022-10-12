@@ -43,7 +43,7 @@ const columns = [
   {
     field: 'parentId', headerName: '',
     valueGetter: (params) => {
-      return params.row['parentId'] ? Number(params.row['parentId']) + 0.001 : params.row['id'];
+      return params.row['parentId'] > 0 ? Number(params.row['parentId']) + 0.001 : params.row['id'];
     }
   },
   { field: 'id', headerName: 'ID', sortable: false, width: 90 },
@@ -59,7 +59,7 @@ const columns = [
       return params.value;
     },
     valueGetter: (params) => {
-      return (params.row['parentId'] ? '>  ' : '') + params.row['title'];
+      return (params.row['parentId'] != params.row['id'] ? '>  ' : '') + params.row['title'];
     }
   },
   {
@@ -247,7 +247,7 @@ function App() {
             },
           }}
           columnVisibilityModel={{
-            'parentId': false,
+            // 'parentId': false,
           }}
           onRowClick={handleEvent}
           rows={tasks}
