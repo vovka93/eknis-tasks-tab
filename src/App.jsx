@@ -232,7 +232,7 @@ function App() {
     event, // MuiEvent<React.MouseEvent<HTMLElement>>
     details // GridCallbackDetails
   ) => {
-    openInNewTab(`https://b24-qq9gfo.bitrix24.eu/company/personal/user/${user.ID}/tasks/task/view/${params.row.id}\/`);
+    BX24.openPath(`/company/personal/user/${user.ID}/tasks/task/view/${params.row.id}\/`);
   };
 
 
