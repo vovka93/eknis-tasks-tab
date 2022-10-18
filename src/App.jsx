@@ -51,7 +51,8 @@ const columns = [
     field: 'title',
     headerName: 'Назва',
     sortable: false,
-    width: 500,
+    minWidth: 500,
+    flex: 1,
     editable: false,
     renderCell: (params) => {
       if (params.row['status'] == 5)
@@ -245,7 +246,7 @@ function App() {
   return (
     <>
       {/* <pre>{JSON.stringify(tasks, null, 2)}</pre> */}
-      <Box sx={{ height: 584, width: '100%' }}>
+      <Box sx={{ height: '100vh', width: '100%' }}>
         {(tasks && tasks.length > 0) ? <DataGrid
           initialState={{
             sorting: {
