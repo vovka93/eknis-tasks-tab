@@ -246,7 +246,7 @@ function App() {
   return (
     <>
       {/* <pre>{JSON.stringify(tasks, null, 2)}</pre> */}
-      <Box sx={{ height: '100vh', width: '100%' }}>
+      <Box sx={{ height: '1024px', width: '100%' }}>
         {(tasks && tasks.length > 0) ? <DataGrid
           initialState={{
             sorting: {
