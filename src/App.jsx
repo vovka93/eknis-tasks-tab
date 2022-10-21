@@ -46,7 +46,7 @@ const columns = [
       return params.row['parentId'] > 0 ? Number(params.row['parentId']) + 0.001 : params.row['id'];
     }
   },
-  { field: 'id', headerName: 'ID', sortable: false, width: 90 },
+  { field: 'id', headerName: 'ID', sortable: false, width: 70 },
   {
     field: 'title',
     headerName: 'Назва',
@@ -55,12 +55,13 @@ const columns = [
     flex: 1,
     editable: false,
     renderCell: (params) => {
+      let prefix = params.row['parentId'] > 0 ? <><big><b>{'>'}</b>&nbsp;&nbsp;</big></> : <></>;
       if (params.row['status'] == 5)
-        return <s> {params.value} </s>;
-      return params.value;
+        return <>{prefix}<s>{params.value}</s></>;
+      return <>{prefix}{params.value}</>;
     },
     valueGetter: (params) => {
-      return (params.row['parentId'] > 0 ? '>  ' : '') + params.row['title'];
+      return params.row['title'];
     }
   },
   {
@@ -145,7 +146,7 @@ function App() {
   const [leadID, setLeadID] = useState(0);
   const [placementInfo, setPlacementInfo] = useState({});
   const [entityName, setEntityName] = useState('');
-  // const [entity, setEntity] = useState({});
+  // const [entity, setEntity] = useState({ });
   const [tasks, setTasks] = useState([]);
   const [isBatch, setIsBatch] = useState(false);
 
