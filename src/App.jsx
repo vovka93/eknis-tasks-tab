@@ -55,10 +55,9 @@ const columns = [
     flex: 1,
     editable: false,
     renderCell: (params) => {
-      let prefix = params.row['parentId'] > 0 ? <><big><b>{'>'}</b>&nbsp;&nbsp;</big></> : <></>;
       if (params.row['status'] == 5)
-        return <>{prefix}<s>{params.value}</s></>;
-      return <>{prefix}{params.value}</>;
+        return <><s>{params.value}</s></>;
+      return <>{params.value}</>;
     },
     valueGetter: (params) => {
       return params.row['title'];
@@ -76,7 +75,7 @@ const columns = [
   {
     field: 'deadline',
     headerName: 'Крайній термін',
-    sortable: false,
+    sortable: true,
     width: 160,
     valueFormatter: ({ value }) =>
       value
@@ -134,10 +133,6 @@ function getTasks(iNumPage = 0, entityName, entityID) {
     });
   })
 }
-
-const openInNewTab = url => {
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
 
 function App() {
   const [user, setUser] = useState({});
@@ -201,37 +196,66 @@ function App() {
     }
   }, [page]);
 
+  function getTasksFromResult(result, id) {
+    if (result && result[`task${id}`]) {
+      if (typeof result[`task${id}`].data === 'function') {
+        let data = result[`task${id}`].data();
+        if (data['tasks'].length) {
+          return data['tasks'];
+        }
+      }
+    }
+    return [];
+  }
+
+  function getBatch(taskIDs) {
+    let batch = {};
+    taskIDs.map(id => {
+      let batchName = `task${id}`;
+      batch[batchName] = [
+        'tasks.task.list', {
+          filter: {
+            PARENT_ID: id,
+          },
+          select
+        }
+      ];
+    });
+    return batch;
+  }
+
+  function getChilds(taskList, level = 1) {
+    return new Promise((resolve, reject) => {
+      let taskIDs = taskList.map(task => task.id);
+      let batch = getBatch(taskIDs);
+      let childs = [];
+      if (taskIDs.length) {
+        BX24.callBatch(batch, (result) => {
+          resolve(taskIDs.map(id => getTasksFromResult(result, id).map(task => {
+            task['title'] = '>'.repeat(level) + ' ' + task['title'];
+            return task;
+          })).flat(Infinity));
+        });
+      }
+    });
+  }
+
   useEffect(() => {
     if (tasks.length && !isBatch) {
-      let batch = {};
-      let ids = [];
-      tasks.map(task => {
-        let id = `task${task.id}`;
-        ids.push(id)
-        batch[id] = [
-          'tasks.task.list', {
-            filter: {
-              PARENT_ID: task.id,
-            },
-            select
-          }
-        ];
-      });
-      BX24.callBatch(batch, (result) => {
-        let allTasks = [];
-        ids.map(id => {
-          if (result[id]) {
-            if (typeof result[id].data === 'function') {
-              let data = result[id].data();
-              if (data['tasks'].length) {
-                allTasks = [...allTasks, ...data['tasks']];
-              }
-            }
-          }
+      (async () => {
+        getChilds(tasks).then(l1 => {
+          setTimeout(() => {
+            getChilds(l1, '2').then(l2 => {
+              setTimeout(() => {
+                getChilds(l2, '3').then(l3 => {
+                  setTasks([...tasks, ...l1, ...l2, ...l3])
+                });
+              }, 500);
+            });
+          }, 500);
         });
         setIsBatch(true);
-        setTasks([...tasks, ...allTasks]);
-      });
+      })();
     }
   }, [tasks?.length]);
 
