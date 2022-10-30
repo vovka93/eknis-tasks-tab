@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Box, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import Datatable from './components/datatable';
 import './App.css'
 
 var BX24 = window.BX24 || {
@@ -231,31 +232,55 @@ function App() {
       let childs = [];
       if (taskIDs.length) {
         BX24.callBatch(batch, (result) => {
-          resolve(taskIDs.map(id => getTasksFromResult(result, id).map(task => {
-            task['title'] = '>'.repeat(level) + ' ' + task['title'];
-            return task;
-          })).flat(Infinity));
+          resolve(taskIDs.map(id => getTasksFromResult(result, id)).flat(1));
         });
       }
     });
   }
 
+  function buildTree(tasks, level = 1) {
+    tasks = tasks.map(task => {
+      if (task && task.status && task.status == '5')
+        task['title'] = '~' + task['title'];
+      return task;
+    });
+    return new Promise((resolve) => {
+      getChilds(tasks).then((childs) => {
+        childs.map(child => {
+          tasks = tasks.map((task) => {
+            if (child.parentId == task.id && child) {
+              if (task.items) {
+                task.items.push(child);
+              } else {
+                task.items = [child];
+              }
+            }
+            return task;
+          })
+        });
+        resolve(Promise.all(tasks.map(task => {
+          return new Promise(resolve => {
+            if (task.items && task.items.length) {
+              buildTree(task.items).then(tree => {
+                task.items = tree;
+                resolve(task);
+              })
+            } else {
+              resolve(task);
+            }
+          });
+        })));
+      })
+    })
+  }
+
+
   useEffect(() => {
     if (tasks.length && !isBatch) {
-      (async () => {
-        getChilds(tasks).then(l1 => {
-          setTimeout(() => {
-            getChilds(l1, '2').then(l2 => {
-              setTimeout(() => {
-                getChilds(l2, '3').then(l3 => {
-                  setTasks([...tasks, ...l1, ...l2, ...l3])
-                });
-              }, 500);
-            });
-          }, 500);
-        });
-        setIsBatch(true);
-      })();
+      buildTree(tasks).then((tree) => {
+        setTasks(tree);
+      })
+      setIsBatch(true);
     }
   }, [tasks?.length]);
 
@@ -264,7 +289,7 @@ function App() {
     event, // MuiEvent<React.MouseEvent<HTMLElement>>
     details // GridCallbackDetails
   ) => {
-    BX24.openPath(`/company/personal/user/${user.ID}/tasks/task/view/${params.row.id}\/`);
+
   };
 
 
@@ -272,25 +297,8 @@ function App() {
     <>
       {/* <pre>{JSON.stringify(tasks, null, 2)}</pre> */}
       <Box sx={{ height: '1024px', width: '100%' }}>
-        {(tasks && tasks.length > 0) ? <DataGrid
-          initialState={{
-            sorting: {
-              sortModel: [{ field: 'parentId', sort: 'asc' }],
-            },
-          }}
-          columnVisibilityModel={{
-            'parentId': false,
-          }}
-          onRowClick={handleEvent}
+        {(tasks && tasks.length > 0) ? <Datatable
           rows={tasks}
-          columns={columns}
-          page={page}
-          onPageChange={(newPage) => setPage(newPage)}
-          pageSize={100}
-          rowsPerPageOptions={[100]}
-          pagination
-          disableSelectionOnClick
-        // experimentalFeatures={{ newEditingApi: true }}
         /> : <Typography>Не знайдено</Typography>}
       </Box>
     </>

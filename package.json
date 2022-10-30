@@ -14,7 +14,10 @@
     "@mui/material": "^5.10.8",
     "@mui/x-data-grid": "^5.17.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@devexpress/dx-react-core": "3.0.4",
+    "@devexpress/dx-react-grid": "3.0.4",
+    "@devexpress/dx-react-grid-material-ui": "3.0.4"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",
